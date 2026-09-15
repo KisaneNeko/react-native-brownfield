@@ -41,6 +41,27 @@ function createAndroidAppEmulatorReleaseDetoxConfig({
         setupTimeout: 300000,
       },
     },
+    // Relative to apps/AndroidApp (Detox cwd). CI uploads this directory on
+    // failure — see .github/actions/androidapp-road-test/action.yml.
+    artifacts: {
+      rootDir: 'artifacts',
+      plugins: {
+        // `log` is logcat on Android — the signal missing from run 33749895553.
+        log: {
+          enabled: true,
+          keepOnlyFailedTestsArtifacts: true,
+        },
+        screenshot: {
+          enabled: true,
+          shouldTakeAutomaticSnapshots: true,
+          keepOnlyFailedTestsArtifacts: true,
+          takeWhen: {
+            testStart: false,
+            testDone: true,
+          },
+        },
+      },
+    },
     behavior: {
       cleanup: {
         // CI owns emulator lifecycle via android-emulator-runner.
