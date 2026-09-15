@@ -409,10 +409,18 @@ runs:
         path: .android_ccache
         key: ${{ steps.prepare-android.outputs.android-ccache-cache-primary-key }}
 
+    - name: List Detox artifacts (diagnostics)
+      if: failure() && (steps.e2e.outputs.phase == 'full' || steps.e2e.outputs.phase == 'test')
+      shell: bash
+      run: |
+        echo "==> Contents of apps/AndroidApp/artifacts"
+        ls -lAR apps/AndroidApp/artifacts 2>/dev/null || echo "(directory does not exist)"
+
     - name: Upload Detox artifacts on failure
       if: failure() && (steps.e2e.outputs.phase == 'full' || steps.e2e.outputs.phase == 'test')
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
       with:
         name: ${{ inputs.e2e-artifact-name }}-${{ inputs.flavor }}-android
         path: apps/AndroidApp/artifacts
-        if-no-files-found: ignore
+        if-no-files-found: warn
+        retention-days: 14
