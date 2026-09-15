@@ -153,11 +153,10 @@ async function waitForAndroidAppReadyVanilla() {
  */
 async function waitForAndroidAppReadyExpo() {
   console.log('[e2e] Waiting for native Expo Android greeting...');
-  await pollUntilUiAutomatorContainsAny(
-    EXPO_ANDROID_GREETING_NEEDLES,
-    90000,
-    EXPO_ANDROID_POLL
-  );
+  await pollUntilUiAutomatorContainsAny(EXPO_ANDROID_GREETING_NEEDLES, 90000, {
+    ...EXPO_ANDROID_POLL,
+    diagnosticsLabel: 'expo-android-greeting',
+  });
 
   console.log('[e2e] Scrolling until Expo home content is visible...');
   for (let attempt = 0; attempt < 10; attempt += 1) {

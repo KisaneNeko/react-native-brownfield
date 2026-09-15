@@ -2,6 +2,10 @@ const assert = require('node:assert/strict');
 const { execSync } = require('node:child_process');
 const { device, element, waitFor, expect: detoxExpect } = require('detox');
 const { DETOX_TIMING } = require('./detoxTiming.cjs');
+const {
+  shouldCaptureDiagnostics,
+  writeDiagnosticsReport,
+} = require('./detoxFailureDiagnostics.cjs');
 
 const detoxLaunchArgs = {
   BrownfieldPreferEmbeddedBundleInDebug: 'YES',
@@ -61,6 +65,41 @@ async function waitForAndroidAppProcess(timeoutMs = 90000) {
 
 function dumpUiAutomatorHierarchy() {
   return adbExecOut('exec-out uiautomator dump /dev/fd/1');
+}
+
+function dumpLogcatTail(lines = 3000) {
+  try {
+    return adbExecOut(`logcat -d -v threadtime -t ${lines}`);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Persist the last hierarchy we saw plus a logcat tail, for CI upload.
+ * Swallows everything — a failed capture must not mask the real failure.
+ */
+function captureUiAutomatorFailure(label, needles, lastXml) {
+  let xml = lastXml;
+  if (!xml) {
+    try {
+      xml = dumpUiAutomatorHierarchy();
+    } catch {
+      xml = null;
+    }
+  }
+
+  const written = writeDiagnosticsReport({
+    label,
+    needles,
+    xml,
+    logcat: dumpLogcatTail(),
+    timestamp: new Date().toISOString(),
+  });
+
+  if (written) {
+    console.log(`[e2e] wrote failure diagnostics to ${written}`);
+  }
 }
 
 function getAndroidDisplaySize() {
@@ -128,14 +167,16 @@ async function pollUntilUiAutomatorContains(
 async function pollUntilUiAutomatorContainsAny(
   needles,
   timeoutMs = 20000,
-  { keepCurrentActivity = false } = {}
+  { keepCurrentActivity = false, diagnosticsLabel } = {}
 ) {
   const deadline = Date.now() + timeoutMs;
   let lastError;
+  let lastXml = null;
 
   while (Date.now() < deadline) {
     try {
       const xml = dumpUiAutomatorHierarchy();
+      lastXml = xml;
       const matched = uiAutomatorHierarchyContainsAny(xml, needles);
       if (matched) {
         return matched;
@@ -152,6 +193,10 @@ async function pollUntilUiAutomatorContainsAny(
     await new Promise((resolve) =>
       setTimeout(resolve, DETOX_TIMING.POLL_INTERVAL_MS)
     );
+  }
+
+  if (shouldCaptureDiagnostics(diagnosticsLabel)) {
+    captureUiAutomatorFailure(diagnosticsLabel, needles, lastXml);
   }
 
   throw (

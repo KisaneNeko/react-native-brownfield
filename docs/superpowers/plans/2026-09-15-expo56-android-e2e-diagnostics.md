@@ -243,8 +243,23 @@ EOF
 - Produces:
   - `buildDiagnosticsReport({ label, needles, xml, logcat, timestamp }): string` — pure, returns the report body.
   - `writeDiagnosticsReport({ label, needles, xml, logcat, timestamp, rootDir, fs }): string | null` — returns the written path, or `null` if writing failed. Never throws.
+  - `shouldCaptureDiagnostics(label): boolean` — true only for a non-empty string.
 
-  Both exported from `e2e/detoxFailureDiagnostics.cjs`.
+  All three exported from `e2e/detoxFailureDiagnostics.cjs`.
+
+**Correction applied during execution (2026-09-15).** The original draft of
+this task gave `diagnosticsLabel` a default of `'uiautomator-wait'`, so every
+timeout captured. That is wrong: `pollUntilUiAutomatorContainsAny` is also
+called at `androidAppDetoxUtils.cjs:163-169` inside a
+`for (attempt < 10)` retry loop with a 4 s timeout, where a timeout is
+expected and caught. Capturing there would dump logcat up to ten times on a
+healthy run, adding latency inside a wait loop in a suite we already suspect
+is timing-sensitive — risking the very flake under investigation and
+violating this plan's "changes no test behaviour" constraint.
+
+Capture is therefore **opt-in**: `diagnosticsLabel` has no default, and
+`shouldCaptureDiagnostics` gates the call. Only the 90 s greeting wait
+labelled in Step 6 captures. The guard is locked by a unit test.
 
 **Why a separate module:** `detoxUtils.cjs` does `require('detox')` at line 3, so it cannot be loaded by a plain `node --test` unit test. Putting the report logic in a dependency-free module makes it directly testable, and keeps `detoxUtils.cjs` to a thin call site.
 
