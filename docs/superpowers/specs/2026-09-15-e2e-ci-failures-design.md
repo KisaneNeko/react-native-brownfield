@@ -220,6 +220,69 @@ targeted hardening. That decision is explicitly out of scope for this plan.
 
 ---
 
+## Verification findings (2026-09-15)
+
+Verified **locally**, not in CI. CI was deliberately not used: the fork's
+Actions are free (public repo) but a full run fires the four macOS iOS jobs
+alongside the Android chain, and local verification is strictly more faithful
+here — `.detoxrc.expo57.cjs` calls the *same*
+`createAndroidAppEmulatorReleaseDetoxConfig` factory that was changed, and
+`androidAppExpoBrownfield.e2e.js` is the *same* spec that runs for Expo 56.
+The prebuilt 7 Sep Expo 57 APKs were reused, so no Gradle build was needed.
+
+**Green run** (`yarn e2e:test:android:expo57`, AVD `Pixel_4_API_34`, matching
+CI's API 34):
+
+```
+✓ shows the native greeting shell and embedded Expo home (8474 ms)
+✓ records the RN postMessage bubble in the Expo surface (21485 ms)
+Test Suites: 1 passed, 1 total   Time: 48.809 s
+```
+
+Afterwards `apps/AndroidApp/e2e-artifacts` did not exist — `keepOnlyFailed
+TestsArtifacts` behaving as intended, and the orphan `artifacts/` path stayed
+unused.
+
+**Forced-failure run.** `EXPO_ANDROID_GREETING_NEEDLES` was temporarily
+replaced with an unmatchable string to drive the 90 s greeting wait into
+timeout, reproducing the CI signature exactly — same helper, same stack, both
+tests failing out of `beforeAll`:
+
+```
+Timed out waiting for UIAutomator to contain any of: __TEMP_UNMATCHABLE_...__
+  at pollUntilUiAutomatorContainsAny (e2e/detoxUtils.cjs:204:5)
+  at waitForAndroidAppReadyExpo   (e2e/androidAppDetoxUtils.cjs:154:3)
+```
+
+Artifacts produced (1.0 MB total, no video):
+
+| File | Source |
+|---|---|
+| `expo-android-greeting-2026-09-15T11-01-02-893Z.txt` | failure dump, labelled by call site |
+| `beforeAllFailure.png` | Detox screenshot plugin |
+| `detox.log`, `detox.trace.json` | Detox log plugin |
+| `emulator-19976 ….startup.log` | logcat |
+
+The dump is 670 890 bytes / 4 533 lines, with both `## UIAutomator hierarchy`
+and `## Logcat tail` populated. Decisively, the captured hierarchy contains
+`Hello native Android (Expo 57)` — the real on-screen text the deliberately
+wrong needle failed to match. On a genuine failure that section is what tells
+us **what was on screen instead of the greeting**, which is exactly the
+question run 33749895553 could not answer.
+
+The temporary needle change was reverted; tree clean; `yarn test:apps` 15/15,
+`yarn lint` 12/12.
+
+**Not verified.** Whether the Expo 56 failure reproduces — it did not recur in
+any run since 2026-09-03, and no `main` run has happened since, so the flake
+hypothesis stands untested. Also unverified: whether the inherited
+`uiHierarchy` plugin emits anything useful on Android (it produced no file in
+the failure run above; iOS is its proven use), and the CI upload step itself,
+which is a YAML path change validated only by inspection and a parse check.
+
+**Root cause of the Expo 56 failure remains unknown.** This work makes the
+next occurrence diagnosable; it does not fix it. No test behaviour changed.
+
 ## Out of scope
 
 - Any behavioural change to Expo 56 E2E timing, retries, or launch strategy.
