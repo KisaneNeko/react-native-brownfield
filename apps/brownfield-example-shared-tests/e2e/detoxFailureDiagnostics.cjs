@@ -65,7 +65,7 @@ function writeDiagnosticsReport({
   xml,
   logcat,
   timestamp,
-  rootDir = 'artifacts',
+  rootDir = 'e2e-artifacts',
   fs = nodeFs,
 }) {
   try {

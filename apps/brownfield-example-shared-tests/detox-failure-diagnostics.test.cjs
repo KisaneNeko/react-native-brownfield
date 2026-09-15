@@ -60,12 +60,12 @@ test('writes the report under the artifacts root', () => {
     xml: '<hierarchy />',
     logcat: 'log line',
     timestamp: '2026-09-15T06:00:00.000Z',
-    rootDir: 'artifacts',
+    rootDir: 'e2e-artifacts',
     fs: fakeFs,
   });
 
   assert.equal(writes.length, 1);
-  assert.match(writes[0].path, /^artifacts\//u);
+  assert.match(writes[0].path, /^e2e-artifacts\//u);
   assert.match(writes[0].path, /expo-android-greeting/u);
   assert.equal(written, writes[0].path);
 });
@@ -84,7 +84,7 @@ test('never throws when the filesystem rejects the write', () => {
     xml: '<hierarchy />',
     logcat: 'log line',
     timestamp: '2026-09-15T06:00:00.000Z',
-    rootDir: 'artifacts',
+    rootDir: 'e2e-artifacts',
     fs: fakeFs,
   });
 

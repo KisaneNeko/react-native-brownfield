@@ -51,10 +51,39 @@ Two facts that shape this plan:
 - Create: `apps/brownfield-example-shared-tests/detox-rc-androidapp-emulator-release.test.cjs`
 
 **Interfaces:**
-- Consumes: nothing.
-- Produces: `createAndroidAppEmulatorReleaseDetoxConfig({ gradleFlavor, detoxConfiguration?, jestConfigPath? })` now additionally returns an `artifacts` object of shape `{ rootDir: string, plugins: { log: {...}, screenshot: {...} } }`. Task 3 depends on `artifacts.rootDir === 'artifacts'`.
+- Consumes: `getDetoxArtifactsConfig()` from `apps/brownfield-example-shared-tests/detox-artifacts-config.cjs`.
+- Produces: `createAndroidAppEmulatorReleaseDetoxConfig({ gradleFlavor, detoxConfiguration?, jestConfigPath? })` now additionally returns an `artifacts` object. Task 3 depends on `artifacts.rootDir === 'e2e-artifacts'`.
 
 The factory is a pure function, so this is directly unit testable — and `yarn test:apps` already runs this workspace's `node --test` suite in CI's `build-lint` job.
+
+**Correction applied during execution (2026-09-15).** The original draft
+hand-rolled an `artifacts` block writing to `artifacts/`. Three things were
+wrong with that, all found while verifying against the repo:
+
+1. **A shared helper already exists.** `detox-artifacts-config.cjs`
+   (`getDetoxArtifactsConfig()`) was added in #387 (`c42f71f`) and is used by
+   both iOS configs. Android was the only Detox config not using it. Reuse it.
+2. **The path convention is `e2e-artifacts/`, not `artifacts/`.** The helper
+   defaults to `e2e-artifacts`, iOS CI uploads `apps/AppleApp/e2e-artifacts`,
+   and both `apps/AppleApp/.gitignore` and `apps/RNApp/.gitignore` ignore it.
+   Meanwhile `androidapp-road-test` uploaded `apps/AndroidApp/artifacts` — a
+   path **nothing has ever written to**. Even a correctly configured Android
+   Detox run would have uploaded nothing. Task 3 now aligns the upload path.
+3. **`apps/AndroidApp/.gitignore` had no `e2e-artifacts` entry.** Harmless
+   while Detox wrote nothing; now it would leave untracked files after every
+   local run. Added, matching the other two apps.
+
+**Video is deliberately disabled for Android** (confirmed with the human
+partner). The shared helper enables it for iOS simulators, where Detox records
+host-side via `simctl io recordVideo` — note its iOS-only
+`video.simulator.codec` key. On Android it would record via
+`adb shell screenrecord` into the emulator userdata partition, which
+`androidapp-road-test` already documents as ENOSPC-prone ("Do not set
+disk-size — a large userdata partition fails when the runner is low on disk
+after Gradle/NDK builds"), and which #387 was itself fighting. Logcat,
+screenshots, uiHierarchy and the Task 2 dump cover the need. A unit test locks
+`video.enabled === false` for Android and asserts the shared helper still has
+it on, so iOS cannot silently regress.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -649,10 +678,17 @@ EOF
 
 **Files:**
 - Modify: `.github/actions/androidapp-road-test/action.yml:412-418`
+- Modify: `apps/AndroidApp/.gitignore`
 
 **Interfaces:**
-- Consumes: `artifacts/` written by Task 1 (Detox) and Task 2 (failure dumps), relative to `apps/AndroidApp`.
+- Consumes: `e2e-artifacts/` written by Task 1 (Detox) and Task 2 (failure dumps), relative to `apps/AndroidApp`.
 - Produces: no code interface. A CI artifact named `${{ inputs.e2e-artifact-name }}-${{ inputs.flavor }}-android`.
+
+**Correction applied during execution (2026-09-15).** The upload `path`
+changes from `apps/AndroidApp/artifacts` to `apps/AndroidApp/e2e-artifacts`.
+The old path was never written to by anything — see the Task 1 correction. The
+listing step also runs `df -h .`, since the disk headroom on this runner is
+the standing risk (#387 fought ENOSPC here) and it is free to record.
 
 - [ ] **Step 1: Read the current step**
 
