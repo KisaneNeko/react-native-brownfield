@@ -6,6 +6,20 @@ const path = require('node:path');
 const UNAVAILABLE = '(unavailable)';
 
 /**
+ * @param {boolean | null | undefined} alive
+ * @returns {'yes' | 'no' | 'unknown'}
+ */
+function describeProcessState(alive) {
+  if (alive === true) {
+    return 'yes';
+  }
+  if (alive === false) {
+    return 'no';
+  }
+  return 'unknown';
+}
+
+/**
  * Whether a timed-out wait should persist diagnostics.
  *
  * Opt-in by design. `pollUntilUiAutomatorContainsAny` is also called inside
@@ -35,10 +49,21 @@ function shouldCaptureDiagnostics(label) {
  * }} input
  * @returns {string}
  */
-function buildDiagnosticsReport({ label, needles, xml, logcat, timestamp }) {
+function buildDiagnosticsReport({
+  label,
+  needles,
+  xml,
+  logcat,
+  processAlive = null,
+  timestamp,
+}) {
   return [
     `# Detox failure diagnostics: ${label}`,
     `Captured at: ${timestamp}`,
+    // `waitForAndroidAppProcess` only proves a PID existed when the wait began.
+    // If the process is gone by the time we give up, the app died mid-launch
+    // (low-memory kill, crash) rather than simply rendering late.
+    `App process alive: ${describeProcessState(processAlive)}`,
     '',
     'Waited for any of:',
     ...needles.map((needle) => `  - ${needle}`),
@@ -64,6 +89,7 @@ function writeDiagnosticsReport({
   needles,
   xml,
   logcat,
+  processAlive,
   timestamp,
   rootDir = 'e2e-artifacts',
   fs = nodeFs,
@@ -76,7 +102,14 @@ function writeDiagnosticsReport({
     fs.mkdirSync(rootDir, { recursive: true });
     fs.writeFileSync(
       filePath,
-      buildDiagnosticsReport({ label, needles, xml, logcat, timestamp })
+      buildDiagnosticsReport({
+        label,
+        needles,
+        xml,
+        logcat,
+        processAlive,
+        timestamp,
+      })
     );
 
     return filePath;

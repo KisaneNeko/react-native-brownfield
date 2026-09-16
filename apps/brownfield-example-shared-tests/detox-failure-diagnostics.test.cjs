@@ -21,6 +21,41 @@ test('report names what was being waited for', () => {
   assert.match(report, /2026-09-15T06:00:00\.000Z/u);
 });
 
+test('report says whether the app process was still alive', () => {
+  const dead = buildDiagnosticsReport({
+    label: 'expo-android-greeting',
+    needles: ['needle'],
+    xml: '<hierarchy />',
+    logcat: 'log line',
+    processAlive: false,
+    timestamp: '2026-09-15T06:00:00.000Z',
+  });
+  const alive = buildDiagnosticsReport({
+    label: 'expo-android-greeting',
+    needles: ['needle'],
+    xml: '<hierarchy />',
+    logcat: 'log line',
+    processAlive: true,
+    timestamp: '2026-09-15T06:00:00.000Z',
+  });
+
+  assert.match(dead, /App process alive: no/u);
+  assert.match(alive, /App process alive: yes/u);
+});
+
+test('report tolerates an unknown process state', () => {
+  const report = buildDiagnosticsReport({
+    label: 'expo-android-greeting',
+    needles: ['needle'],
+    xml: '<hierarchy />',
+    logcat: 'log line',
+    processAlive: null,
+    timestamp: '2026-09-15T06:00:00.000Z',
+  });
+
+  assert.match(report, /App process alive: unknown/u);
+});
+
 test('report embeds the hierarchy and the logcat tail', () => {
   const report = buildDiagnosticsReport({
     label: 'expo-android-greeting',

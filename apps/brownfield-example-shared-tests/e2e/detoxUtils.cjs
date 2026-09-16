@@ -89,11 +89,25 @@ function captureUiAutomatorFailure(label, needles, lastXml) {
     }
   }
 
+  // waitForAndroidAppProcess only proves a PID existed when the wait began.
+  // A dead process here means the app died mid-launch rather than rendering
+  // late — the two look identical in the job log otherwise.
+  let processAlive = null;
+  try {
+    processAlive = isAndroidAppProcessRunning();
+  } catch {
+    processAlive = null;
+  }
+
+  // Echo to stdout too: the job log survives even when artifact upload does not.
+  console.log(`[e2e] app process alive at timeout: ${processAlive}`);
+
   const written = writeDiagnosticsReport({
     label,
     needles,
     xml,
     logcat: dumpLogcatTail(),
+    processAlive,
     timestamp: new Date().toISOString(),
   });
 
