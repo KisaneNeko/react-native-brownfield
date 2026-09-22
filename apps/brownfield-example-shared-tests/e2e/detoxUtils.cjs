@@ -483,12 +483,14 @@ async function launchBrownfieldAppForDetox({
   newInstance = true,
   enableSync = true,
   processTimeoutMs,
+  extraLaunchArgs = {},
 } = {}) {
   console.log('[e2e] Launching brownfield app via Detox...');
   await device.launchApp({
     newInstance,
     launchArgs: {
       ...detoxLaunchArgs,
+      ...extraLaunchArgs,
       detoxEnableSynchronization: 0,
     },
   });

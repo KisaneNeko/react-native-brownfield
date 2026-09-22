@@ -8,12 +8,19 @@ import {
 } from '@callstack/brownfield-example-shared-tests/runtime';
 
 import { HomeScreen } from './HomeScreen';
-import { NativeOsVersionLabelContext } from './nativeHostContext';
+import {
+  NativeOsVersionLabelContext,
+  SurfaceTagContext,
+} from './nativeHostContext';
 import { Stack } from './navigation/RootStack';
 
 type AppProps = BrownfieldRootProps;
 
-export default function App({ nativeOsVersionLabel, brownfieldE2E }: AppProps) {
+export default function App({
+  nativeOsVersionLabel,
+  brownfieldE2E,
+  surfaceTag,
+}: AppProps) {
   useEffect(() => {
     syncBrownfieldE2EModeFromRootProps(brownfieldE2E);
     return () => syncBrownfieldE2EModeFromRootProps(undefined);
@@ -21,11 +28,13 @@ export default function App({ nativeOsVersionLabel, brownfieldE2E }: AppProps) {
 
   return (
     <NativeOsVersionLabelContext.Provider value={nativeOsVersionLabel}>
-      <NavigationContainer>
-        <Stack.Navigator>
-          <Stack.Screen name="Home" component={HomeScreen} />
-        </Stack.Navigator>
-      </NavigationContainer>
+      <SurfaceTagContext.Provider value={surfaceTag}>
+        <NavigationContainer>
+          <Stack.Navigator>
+            <Stack.Screen name="Home" component={HomeScreen} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </SurfaceTagContext.Provider>
     </NativeOsVersionLabelContext.Provider>
   );
 }

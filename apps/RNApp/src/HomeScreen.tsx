@@ -16,7 +16,7 @@ import BrownfieldNavigation from '@callstack/brownfield-navigation';
 import { getRandomTheme } from './utils';
 import type { RootStackParamList } from './navigation/RootStack';
 import Counter from './components/counter';
-import { useNativeOsVersionLabel } from './nativeHostContext';
+import { useNativeOsVersionLabel, useSurfaceTag } from './nativeHostContext';
 
 interface Message {
   id: string;
@@ -81,6 +81,10 @@ export function HomeScreen({
   route,
 }: NativeStackScreenProps<RootStackParamList, 'Home'>) {
   const nativeOsVersionLabel = useNativeOsVersionLabel();
+  const surfaceTag = useSurfaceTag();
+  const goBackTestId = surfaceTag
+    ? `${brownfieldE2ETestIds.rnAppGoBack}-${surfaceTag}`
+    : brownfieldE2ETestIds.rnAppGoBack;
   const colors = route.params?.theme ? route.params.theme : getRandomTheme();
   const [messages, setMessages] = useState<Message[]>([]);
   const flatListRef = useRef<FlatList<Message>>(null);
@@ -251,6 +255,7 @@ export function HomeScreen({
           title="Push next screen"
         />
         <Button
+          testID={goBackTestId}
           onPress={() => {
             if (navigation.canGoBack()) {
               navigation.goBack();

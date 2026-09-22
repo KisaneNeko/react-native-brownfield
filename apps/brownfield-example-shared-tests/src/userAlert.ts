@@ -13,6 +13,8 @@ export function isBrownfieldE2EMode() {
 export type BrownfieldRootProps = {
   nativeOsVersionLabel?: string;
   brownfieldE2E?: boolean;
+  /** Distinguishes multiple React Native surfaces mounted at once (E2E). */
+  surfaceTag?: string;
 };
 
 export function syncBrownfieldE2EModeFromRootProps(brownfieldE2E?: boolean) {

@@ -10,6 +10,7 @@ export const brownfieldE2ETestIds = {
   sendMessageToNative: 'brownfield-e2e-send-message-native',
   openNativeSettings: 'brownfield-e2e-open-native-settings',
   openNativeReferrals: 'brownfield-e2e-open-native-referrals',
+  rnAppGoBack: 'brownfield-e2e-rnapp-go-back',
   counterCount: 'brownfield-e2e-counter-count',
   counterIncrement: 'brownfield-e2e-counter-increment',
   /** RN-authored postMessage bubble body (may repeat across list — use atIndex(0) for newest). */

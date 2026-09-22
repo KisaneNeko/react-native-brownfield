@@ -9,6 +9,7 @@ const brownfieldE2ETestIds = {
   sendMessageToNative: 'brownfield-e2e-send-message-native',
   openNativeSettings: 'brownfield-e2e-open-native-settings',
   openNativeReferrals: 'brownfield-e2e-open-native-referrals',
+  rnAppGoBack: 'brownfield-e2e-rnapp-go-back',
   counterCount: 'brownfield-e2e-counter-count',
   counterIncrement: 'brownfield-e2e-counter-increment',
   rnPostMessageText: 'brownfield-e2e-rn-post-message-text',
