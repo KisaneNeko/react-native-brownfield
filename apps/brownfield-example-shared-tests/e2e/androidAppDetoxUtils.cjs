@@ -154,8 +154,9 @@ async function waitForAndroidAppReadyVanilla() {
 async function waitForAndroidAppReadyExpo() {
   console.log('[e2e] Waiting for native Expo Android greeting...');
   await pollUntilUiAutomatorContainsAny(
-    EXPO_ANDROID_GREETING_NEEDLES,
-    90000,
+    // DO NOT MERGE: forced failure to verify Android E2E diagnostics upload (#466)
+    ['__forced_failure_text_that_never_renders__'],
+    20000,
     EXPO_ANDROID_POLL
   );
 
