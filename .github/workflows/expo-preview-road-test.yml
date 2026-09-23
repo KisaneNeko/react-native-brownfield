@@ -5,6 +5,9 @@ on:
   schedule:
     - cron: '0 6 */2 * *'
   workflow_dispatch:
+  # DO NOT MERGE: temporary trigger to run this workflow on a fork (#464)
+  push:
+    branches: [test/expo-preview-fork-run]
 
 permissions:
   actions: write
