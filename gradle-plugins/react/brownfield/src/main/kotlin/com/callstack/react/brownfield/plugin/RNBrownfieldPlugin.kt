@@ -117,9 +117,8 @@ class RNBrownfieldPlugin : Plugin<Project> {
             }
             transitiveDeps.addAll(expoTransitiveDeps)
         }
-        // Never on Expo: the path above already covers every embedded module there, and the RNC
-        // discoverer doesn't filter by the Expo blacklist, so running both leaks Expo coordinates.
-        if (!isExpoProject && extension.experimentalIncludeTransitiveDependencies) {
+        // Also on Expo: the path above only covers Expo modules, not community libraries.
+        if (extension.experimentalIncludeTransitiveDependencies) {
             val rncDiscovery = RncTransitiveDependencyDiscoverer(project).discover(artifacts)
             Logging.log(
                 "Merged ${rncDiscovery.dependencies.size} transitive dependencies discovered by the RNC discoverer",
