@@ -1,0 +1,9 @@
+{
+  "name": "@callstack/brownfield-example-transitive-dep-fixture",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Test fixture: a native library whose Android dependency must end up in the published brownfield POM.",
+  "peerDependencies": {
+    "react-native": "*"
+  }
+}

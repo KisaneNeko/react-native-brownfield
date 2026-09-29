@@ -1,0 +1,26 @@
+apply plugin: "com.android.library"
+
+android {
+  namespace "com.callstack.transitivedepfixture"
+  compileSdkVersion 36
+
+  defaultConfig {
+    minSdkVersion 24
+  }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_17
+    targetCompatibility JavaVersion.VERSION_17
+  }
+}
+
+repositories {
+  google()
+  mavenCentral()
+}
+
+dependencies {
+  implementation "com.facebook.react:react-android"
+  // Must appear in every published demo POM, see apps/scripts/verify-brownfield-pom.ts.
+  implementation "org.apache.commons:commons-lang3:3.17.0"
+}

@@ -1884,6 +1884,7 @@ __metadata:
   resolution: "@callstack/brownfield-example-expo-app-57@workspace:apps/ExpoApp57"
   dependencies:
     "@callstack/brownfield-example-shared-tests": "workspace:^"
+    "@callstack/brownfield-example-transitive-dep-fixture": "workspace:^"
     "@callstack/brownfield-navigation": "workspace:^"
     "@callstack/brownie": "workspace:^"
     "@callstack/react-native-brownfield": "workspace:^"
@@ -1924,6 +1925,7 @@ __metadata:
   dependencies:
     "@babel/core": "npm:^7.29.6"
     "@callstack/brownfield-example-shared-tests": "workspace:^"
+    "@callstack/brownfield-example-transitive-dep-fixture": "workspace:^"
     "@callstack/brownfield-navigation": "workspace:^"
     "@callstack/brownie": "workspace:^"
     "@callstack/react-native-brownfield": "workspace:^"
@@ -1984,6 +1986,7 @@ __metadata:
     "@babel/preset-env": "npm:^7.25.3"
     "@babel/runtime": "npm:^7.25.0"
     "@callstack/brownfield-example-shared-tests": "workspace:^"
+    "@callstack/brownfield-example-transitive-dep-fixture": "workspace:^"
     "@callstack/brownfield-navigation": "workspace:^"
     "@callstack/brownie": "workspace:^"
     "@callstack/react-native-brownfield": "workspace:^"
@@ -2031,6 +2034,14 @@ __metadata:
     react: ">=18"
     react-native: ">=0.73"
     react-test-renderer: ">=18"
+  languageName: unknown
+  linkType: soft
+
+"@callstack/brownfield-example-transitive-dep-fixture@workspace:^, @callstack/brownfield-example-transitive-dep-fixture@workspace:apps/brownfield-example-transitive-dep-fixture":
+  version: 0.0.0-use.local
+  resolution: "@callstack/brownfield-example-transitive-dep-fixture@workspace:apps/brownfield-example-transitive-dep-fixture"
+  peerDependencies:
+    react-native: "*"
   languageName: unknown
   linkType: soft
 

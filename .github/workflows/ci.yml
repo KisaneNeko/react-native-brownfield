@@ -43,15 +43,19 @@ jobs:
             rnapp:
               - 'apps/RNApp/**'
               - 'apps/brownfield-example-shared-tests/**'
+              - 'apps/brownfield-example-transitive-dep-fixture/**'
             expo58:
               - 'apps/ExpoApp58/**'
               - 'apps/brownfield-example-shared-tests/**'
+              - 'apps/brownfield-example-transitive-dep-fixture/**'
             expo57:
               - 'apps/ExpoApp57/**'
               - 'apps/brownfield-example-shared-tests/**'
+              - 'apps/brownfield-example-transitive-dep-fixture/**'
             androidapp:
               - 'apps/AndroidApp/**'
               - 'apps/brownfield-example-shared-tests/**'
+              - 'apps/brownfield-example-transitive-dep-fixture/**'
             appleapp:
               - 'apps/AppleApp/**'
               - 'apps/brownfield-example-shared-tests/**'

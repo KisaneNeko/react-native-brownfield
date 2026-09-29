@@ -185,6 +185,11 @@ runs:
       run: stat ~/.m2/repository/${{ inputs.rn-project-maven-path }}/0.0.1-SNAPSHOT/brownfieldlib-0.0.1-SNAPSHOT-${{ steps.aar-variants.outputs.release }}.aar
       shell: bash
 
+    - name: Verify brownfield POM
+      if: steps.e2e.outputs.phase != 'test'
+      run: node --experimental-strip-types --no-warnings apps/scripts/verify-brownfield-pom.ts ${{ inputs.rn-project-maven-path }}
+      shell: bash
+
     - name: '::endgroup:: RN app — prebuild, package & publish AAR'
       if: steps.e2e.outputs.phase != 'test'
       run: echo "::endgroup::"

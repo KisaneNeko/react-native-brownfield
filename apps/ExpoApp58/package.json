@@ -39,6 +39,7 @@
     }
   },
   "dependencies": {
+    "@callstack/brownfield-example-transitive-dep-fixture": "workspace:^",
     "@callstack/brownfield-navigation": "workspace:^",
     "@callstack/brownie": "workspace:^",
     "@callstack/react-native-brownfield": "workspace:^",
